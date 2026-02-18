@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Recipe {
+  id              String             @id @default(uuid())
+  title           String
+  description     String?
+  instructions    String
+  prepTimeMinutes Int
+  cookTimeMinutes Int
+  servings        Int
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  ingredients     RecipeIngredient[]
+  mealPlanItems   MealPlanItem[]
+}
+
+model Ingredient {
+  id      String             @id @default(uuid())
+  name    String             @unique
+  recipes RecipeIngredient[]
+}
+
+model RecipeIngredient {
+  recipeId     String
+  ingredientId String
+  quantity     String?
+  unit         String?
+
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@id([recipeId, ingredientId])
+}
+
+model MealPlan {
+  id        String         @id @default(uuid())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  items     MealPlanItem[]
+}
+
+model MealPlanItem {
+  id         String   @id @default(uuid())
+  mealPlanId String
+  recipeId   String
+  date       DateTime
+  mealType   MealType
+
+  mealPlan MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+  recipe   Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+
+enum MealType {
+  breakfast
+  lunch
+  dinner
+  snack
+}

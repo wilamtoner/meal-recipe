@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16
+    container_name: meal_recipe_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: meal_recipe
+      POSTGRES_USER: meal_recipe
+      POSTGRES_PASSWORD: meal_recipe
+    ports:
+      - "5432:5432"
+    volumes:
+      - meal_recipe_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U meal_recipe -d meal_recipe"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  meal_recipe_pgdata:
